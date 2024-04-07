@@ -6,20 +6,25 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { formatAsPrice } from "~/utils/utils";
 import AddProductToCart from "~/components/AddProductToCart/AddProductToCart";
-import { products } from "~/mocks/data";
+import { useAvailableProducts } from "~/queries/products";
 
 export default function Products() {
+  const { data = [], isLoading } = useAvailableProducts();
+
+  if (isLoading) {
+    return <Typography>Loading...</Typography>;
+  }
   return (
     <Grid container spacing={4}>
       {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
-      {products.map((product, index) => (
+      {data.map((product) => (
         <Grid item key={product.id} xs={12} sm={6} md={4}>
           <Card
             sx={{ height: "100%", display: "flex", flexDirection: "column" }}
           >
             <CardMedia
               sx={{ pt: "56.25%" }}
-              image={`https://source.unsplash.com/random?sig=${index}`}
+              image={product.image}
               title="Image title"
             />
             <CardContent sx={{ flexGrow: 1 }}>
