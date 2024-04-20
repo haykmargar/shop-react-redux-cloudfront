@@ -5,15 +5,10 @@ import { useQuery, useQueryClient, useMutation } from "react-query";
 import React from "react";
 
 export function useAvailableProducts() {
-  return useQuery<AvailableProduct[], AxiosError>(
-    "available-products",
-    async () => {
-      const res = await axios.get<AvailableProduct[]>(
-        `${API_PATHS.product}/products`
-      );
-      return res.data;
-    }
-  );
+  return useQuery<AvailableProduct[], AxiosError>("productsData", async () => {
+    const res = await axios.get(`${API_PATHS.product}/products`);
+    return res.data;
+  });
 }
 
 export function useInvalidateAvailableProducts() {
