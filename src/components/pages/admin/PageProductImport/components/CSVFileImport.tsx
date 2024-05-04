@@ -1,7 +1,7 @@
 import React from "react";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 type CSVFileImportProps = {
   url: string;
@@ -31,9 +31,16 @@ export default function CSVFileImport({ url, title }: CSVFileImportProps) {
       return;
     }
 
+    const authorizationToken = localStorage.getItem("authorization_token");
+
     try {
       const response = await axios.get(url, {
         params: { name: encodeURIComponent(file.name) },
+        headers: authorizationToken
+          ? {
+              Authorization: `Basic ${authorizationToken}`,
+            }
+          : {},
       });
       console.log("File to be uploaded: ", file.name);
       console.log("Uploading to: ", response.data.url);
@@ -52,7 +59,22 @@ export default function CSVFileImport({ url, title }: CSVFileImportProps) {
         console.error("Upload failed:", await uploadResult.text());
       }
     } catch (error) {
-      console.error("Error uploading file:", error);
+      const axiosError = error as AxiosError;
+
+      if (axiosError.response) {
+        if (axiosError.response.status === 401) {
+          alert(
+            "Error: Unauthorized (401). Please check your authorization token."
+          );
+        } else if (axiosError.response.status === 403) {
+          alert(
+            "Error: Forbidden (403). Please check your authorization permissions."
+          );
+        }
+      } else {
+        console.error("Error uploading file:", axiosError);
+        alert(`Other error occurred: ${axiosError.message}`);
+      }
     }
   };
   return (
